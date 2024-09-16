@@ -18,12 +18,13 @@ class RegimeMoteur {
     public:
         String hex;
         int regime;
+        double setapDesBarre;
         CANMessage message;
         RegimeMoteur(CANMessage message) {
             message = message;
             regime = (message.data[0]*256 + message.data[1]) / 8;
             hex = String(message.data[0], HEX) + String(message.data[1], HEX);
-            
+            setapDesBarre = regime / 1000;
         }
 };
 
@@ -81,15 +82,21 @@ void loop()
     
     can2515.receive(messageCANReception);
 
-    RegimeMoteur tourMin(messageCANReception);
+    RegimeMoteur MoteurInfo(messageCANReception);
     
-    Serial.println(tourMin.regime);
+    Serial.println(MoteurInfo.setapDesBarre);
     
     u8g2.clearBuffer();
     u8g2.setFont(u8g2_font_6x13_tf);
-    u8g2.setCursor(5,16);
-    u8g2.print("0 1 2 3 4 5 6 7 8");
+    u8g2.setCursor(8,32);
+    for(int i=0; i<9; i++){
+        u8g2.print(i);
+        u8g2.setCursor(8+(13.3*(i+1)),32);
+    }
+
+    u8g2.drawBox(8, 40,8+13.3*MoteurInfo.setapDesBarre, 10);
+
     u8g2.sendBuffer();
     }
-    delay(100);
+
 }
